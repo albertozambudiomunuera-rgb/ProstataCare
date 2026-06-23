@@ -1,5 +1,5 @@
 const DB_NAME = "ProstataCareV2";
-const DB_VERSION = 4;
+const DB_VERSION = 5;
 
 export function openDB() {
   return new Promise((resolve, reject) => {
@@ -18,6 +18,7 @@ export function openDB() {
         { name: "questionnaire_results", opts: { keyPath: "id", autoIncrement: true }, indexes: [["type", "type"], ["date", "date"]] },
         { name: "adverse_events",        opts: { keyPath: "id", autoIncrement: true }, indexes: [["date", "date"]] },
         { name: "inr_logs",              opts: { keyPath: "id", autoIncrement: true }, indexes: [["date", "date"]] },
+        { name: "safety_checks",         opts: { keyPath: "id", autoIncrement: true }, indexes: [["completedAt", "completedAt"]] },
       ];
       stores.forEach(({ name, opts, indexes }) => {
         if (!db.objectStoreNames.contains(name)) {
@@ -69,7 +70,7 @@ export async function dbDel(store, id) {
 
 export async function dbClearAll() {
   const db = await openDB();
-  const stores = ["symptom_logs", "psa_logs", "prescriptions", "home_meds", "kegel_logs", "bone_logs", "bp_logs", "reminders", "questionnaire_results", "adverse_events", "inr_logs"];
+  const stores = ["symptom_logs", "psa_logs", "prescriptions", "home_meds", "kegel_logs", "bone_logs", "bp_logs", "reminders", "questionnaire_results", "adverse_events", "inr_logs", "safety_checks"];
   const tx = db.transaction(stores, "readwrite");
   const promises = stores.map(storeName => new Promise((resolve, reject) => {
     const req = tx.objectStore(storeName).clear();

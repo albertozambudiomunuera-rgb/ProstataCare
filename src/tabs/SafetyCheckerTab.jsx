@@ -1,13 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import Card from '../components/Card';
 import SectionTitle from '../components/SectionTitle';
+import { dbAdd } from '../db';
 
-// Normalize: lowercase + strip diacritics
 function norm(str) {
   return str.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 }
 
-const LAST_CHECK_KEY = "prostatacare-safety-last-check";
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
 // 12 checks from the AEU safety_intermittent_checker JSON
@@ -174,15 +173,17 @@ function generatePDFContent(prescriptions, activeChecks, answers) {
   return lines.join("\n");
 }
 
-export default function SafetyCheckerTab({ prescriptions }) {
+export default function SafetyCheckerTab({ prescriptions, safetyChecks = [], refresh }) {
   const [answers, setAnswers] = useState({});
-  const [phase, setPhase]     = useState("questions"); // "questions" | "results"
+  const [phase, setPhase]     = useState("questions");
   const [pdfCopied, setPdfCopied] = useState(false);
 
   const activeChecks = useMemo(() => getActiveChecks(prescriptions), [prescriptions]);
 
-  const lastCheckStr = localStorage.getItem(LAST_CHECK_KEY);
-  const lastCheckDate = lastCheckStr ? new Date(lastCheckStr) : null;
+  const lastCheck = safetyChecks.length > 0
+    ? [...safetyChecks].sort((a, b) => b.completedAt.localeCompare(a.completedAt))[0]
+    : null;
+  const lastCheckDate = lastCheck ? new Date(lastCheck.completedAt) : null;
   const isDue = !lastCheckDate || (Date.now() - lastCheckDate.getTime() > WEEK_MS);
   const nextCheckDate = lastCheckDate
     ? new Date(lastCheckDate.getTime() + WEEK_MS).toLocaleDateString("es-ES", { day: "2-digit", month: "long" })
@@ -196,8 +197,9 @@ export default function SafetyCheckerTab({ prescriptions }) {
   const hasYellow = flaggedChecks.some(c => c.severity === "YELLOW");
   const resultLevel = hasRed ? "RED" : hasYellow ? "YELLOW" : "GREEN";
 
-  const completeCheck = () => {
-    localStorage.setItem(LAST_CHECK_KEY, new Date().toISOString());
+  const completeCheck = async () => {
+    await dbAdd("safety_checks", { completedAt: new Date().toISOString(), resultLevel });
+    if (refresh) refresh();
     setPhase("results");
   };
 

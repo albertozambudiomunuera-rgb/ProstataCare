@@ -65,18 +65,30 @@ export default function App() {
 
   const [data, setData] = useState({
     symptomLogs: [], psaLogs: [], prescriptions: [], homeMeds: [],
-    kegelLogs: [], boneLogs: [], bpLogs: [], reminders: [], adverseEvents: [], inrLogs: []
+    kegelLogs: [], boneLogs: [], bpLogs: [], reminders: [], adverseEvents: [], inrLogs: [], safetyChecks: []
   });
+  const [showSafetyPrompt, setShowSafetyPrompt] = useState(false);
 
   const loadAll = useCallback(async () => {
     try {
-      const [symptomLogs, psaLogs, prescriptions, homeMeds, kegelLogs, boneLogs, bpLogs, reminders, adverseEvents, inrLogs] = await Promise.all([
+      const [symptomLogs, psaLogs, prescriptions, homeMeds, kegelLogs, boneLogs, bpLogs, reminders, adverseEvents, inrLogs, safetyChecks] = await Promise.all([
         dbAll("symptom_logs"), dbAll("psa_logs"), dbAll("prescriptions"), dbAll("home_meds"),
         dbAll("kegel_logs"), dbAll("bone_logs"), dbAll("bp_logs"), dbAll("reminders"),
-        dbAll("adverse_events"), dbAll("inr_logs"),
+        dbAll("adverse_events"), dbAll("inr_logs"), dbAll("safety_checks"),
       ]);
-      setData({ symptomLogs, psaLogs, prescriptions, homeMeds, kegelLogs, boneLogs, bpLogs, reminders, adverseEvents, inrLogs });
+      const newData = { symptomLogs, psaLogs, prescriptions, homeMeds, kegelLogs, boneLogs, bpLogs, reminders, adverseEvents, inrLogs, safetyChecks };
+      setData(newData);
       if (shouldShowSafariBanner(reminders.length)) setSafariBannerVisible(true);
+
+      // Auto-trigger weekly safety check when risk drugs are present
+      const RISK_KW = ["acenocumarol","sintrom","warfarina","rivaroxaban","apixaban","dabigatran","edoxaban","clopidogrel","prasugrel","ticagrelor","digoxina","amiodarona","rosuvastatina","atorvastatina","simvastatina","amlodipino","nifedipino","verapamilo","diltiazem","furosemida","torasemida","hidroclorotiazida","indapamida","carbamazepina","fenitoina","fenobarbital","midazolam","triazolam","diazepam","alprazolam","lormetazepam","soja","isoflavona","omeprazol","esomeprazol","lansoprazol","pantoprazol","prednisona","dexametasona","metilprednisolona"];
+      const norm = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+      const hasRiskDrug = prescriptions.some(p => RISK_KW.some(kw => norm(p.name).includes(kw)));
+      const lastCheck = safetyChecks.length > 0
+        ? [...safetyChecks].sort((a, b) => b.completedAt.localeCompare(a.completedAt))[0]
+        : null;
+      const isDue = !lastCheck || (Date.now() - new Date(lastCheck.completedAt).getTime() > 7 * 24 * 60 * 60 * 1000);
+      if (hasRiskDrug && isDue) setShowSafetyPrompt(true);
     } catch (err) {
       console.error("Error al cargar la base de datos", err);
     }
@@ -172,6 +184,7 @@ export default function App() {
         await restoreStore("reminders", imported.reminders);
         await restoreStore("adverse_events", imported.adverseEvents);
         await restoreStore("inr_logs", imported.inrLogs);
+        await restoreStore("safety_checks", imported.safetyChecks);
         alert("Copia de seguridad restaurada con éxito.");
         await loadAll();
         navigate("home");
@@ -187,6 +200,39 @@ export default function App() {
     <div style={{ minHeight: "100vh", background: "var(--bg)", maxWidth: "430px", margin: "0 auto", position: "relative", display: "flex", flexDirection: "column", transition: "background var(--transition-normal)" }}>
 
       {showProfileModal && <PatientProfileModal onDone={handleProfileDone} />}
+
+      {/* Weekly safety check prompt */}
+      {showSafetyPrompt && !showProfileModal && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "flex-end", justifyContent: "center", padding: "0 0 calc(env(safe-area-inset-bottom,0px) + 5rem)" }}>
+          <div style={{ background: "var(--card)", borderRadius: "var(--radius-lg) var(--radius-lg) 0 0", padding: "1.5rem 1.25rem 1.25rem", width: "100%", maxWidth: "430px", boxShadow: "0 -8px 32px rgba(0,0,0,0.18)", animation: "scaleIn var(--transition-fast) both" }}>
+            <div style={{ display: "flex", gap: ".85rem", alignItems: "flex-start", marginBottom: "1.1rem" }}>
+              <span style={{ fontSize: "1.8rem", flexShrink: 0 }}>🔍</span>
+              <div>
+                <p style={{ fontWeight: 800, fontSize: "1rem", color: "var(--navy)", marginBottom: ".3rem" }}>Control de seguridad semanal</p>
+                <p style={{ fontSize: ".82rem", color: "var(--muted)", lineHeight: 1.5 }}>
+                  Tienes fármacos que requieren vigilancia activa. Responde unas preguntas breves para detectar posibles señales de alerta y generar un informe para tu médico.
+                </p>
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: ".6rem" }}>
+              <button
+                className="btn-primary"
+                style={{ flex: 2 }}
+                onClick={() => { setShowSafetyPrompt(false); navigate("safetychecker"); }}
+              >
+                Responder ahora
+              </button>
+              <button
+                className="btn-ghost"
+                style={{ flex: 1 }}
+                onClick={() => setShowSafetyPrompt(false)}
+              >
+                Ahora no
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <header style={{ position: "sticky", top: 0, zIndex: 30, background: "var(--glass-bg)", backdropFilter: "blur(12px)", borderBottom: "1px solid var(--border)", padding: ".7rem 1.2rem", display: "flex", alignItems: "center", gap: ".8rem", transition: "background var(--transition-normal), border var(--transition-normal)" }}>
@@ -234,7 +280,7 @@ export default function App() {
         {tab === "reminders"     && <RemindersTab reminders={data.reminders} refresh={loadAll} />}
         {tab === "recommendations" && <RecommendationsTab />}
         {tab === "adverseevents"  && <AdverseEventsTab adverseEvents={data.adverseEvents} refresh={loadAll} />}
-        {tab === "safetychecker"  && <SafetyCheckerTab prescriptions={data.prescriptions} />}
+        {tab === "safetychecker"  && <SafetyCheckerTab prescriptions={data.prescriptions} safetyChecks={data.safetyChecks} refresh={loadAll} />}
         {tab === "inr"            && <INRTab inrLogs={data.inrLogs} refresh={loadAll} />}
         {tab === "masinfo"        && <MasInfoTab data={data} />}
       </main>
