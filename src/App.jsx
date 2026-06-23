@@ -319,8 +319,7 @@ export default function App() {
       {/* Footer */}
       <footer style={{ padding: "1.2rem 1.5rem 6rem", borderTop: "1px solid var(--border)", background: "var(--card)", transition: "background var(--transition-normal), border var(--transition-normal)" }}>
         <p style={{ fontSize: ".81rem", color: "var(--muted)", lineHeight: 1.6 }}>
-          © 2026 Dr. Alberto Zambudio. Todos los derechos reservados.<br />
-          En colaboración con la Oficina de Salud Digital · AEU
+          © 2026 Dr. Alberto Zambudio · Oficina de Salud Digital AEU · Todos los derechos reservados.
         </p>
       </footer>
 
