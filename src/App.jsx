@@ -271,7 +271,7 @@ export default function App() {
       {/* Main */}
       <main style={{ flex: 1 }}>
         {tab === "home"          && <HomeTab data={data} onNavigate={navigate} profile={profile} />}
-        {tab === "symptoms"      && <SymptomsTab data={data} refresh={loadAll} />}
+        {tab === "symptoms"      && <SymptomsTab data={data} refresh={loadAll} onNavigate={navigate} />}
         {tab === "psa"           && <PSATab psaLogs={data.psaLogs} theme={theme} refresh={loadAll} />}
         {tab === "prescriptions" && <PrescriptionsTab prescriptions={data.prescriptions} refresh={loadAll} onNavigate={navigate} />}
         {tab === "home_meds"     && <HomeMedsTab homeMeds={data.homeMeds} refresh={loadAll} />}

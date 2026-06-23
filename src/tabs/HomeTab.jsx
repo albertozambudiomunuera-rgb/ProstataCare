@@ -144,7 +144,7 @@ export default function HomeTab({ data, onNavigate, profile }) {
 
   const baseCards = [
     { icon: "🌡️", label: "Síntomas",   sub: todaySymptoms.length ? `${todaySymptoms.length} entrada hoy` : "Sin registro hoy", nav: "symptoms",      color: "var(--accent-light)",        border: "rgba(59, 130, 246, 0.15)" },
-    { icon: "🦴", label: "Salud Ósea", sub: boneScore > 0 ? `${boneScore}/7 hábitos hoy` : "Sin registro hoy",                  nav: "bone",          color: "rgba(224, 123, 42, 0.1)",     border: "rgba(224, 123, 42, 0.15)" },
+    { icon: "💊", label: "Medicamentos", sub: prescriptions.length > 0 ? `${prescriptions.length} fármaco${prescriptions.length !== 1 ? "s" : ""} registrado${prescriptions.length !== 1 ? "s" : ""}` : "Sin fármacos", nav: "prescriptions", color: "rgba(16, 185, 129, 0.1)", border: "rgba(16, 185, 129, 0.15)" },
     { icon: "💡", label: "Recomendaciones", sub: "Consejos para ti",                                                           nav: "recommendations", color: "rgba(139, 92, 246, 0.08)", border: "rgba(139, 92, 246, 0.15)" },
   ];
 

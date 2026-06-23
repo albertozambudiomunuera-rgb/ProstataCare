@@ -22,7 +22,7 @@ function bpClassify(sys, dia) {
 
 function ClinicalSummary({ data }) {
   const [copied, setCopied] = useState(false);
-  const { symptomLogs, psaLogs, bpLogs, kegelLogs, boneLogs, adverseEvents = [], inrLogs = [] } = data;
+  const { symptomLogs, psaLogs, bpLogs, kegelLogs, boneLogs, adverseEvents = [], inrLogs = [], safetyChecks = [] } = data;
 
   if (!symptomLogs.length && !psaLogs.length) return (
     <p style={{ fontSize: ".85rem", color: "var(--muted)", textAlign: "center", padding: "1rem 0", fontStyle: "italic" }}>
@@ -72,6 +72,18 @@ function ClinicalSummary({ data }) {
   }
   bullets.push({ text: `Adherencia última semana — Kegel: ${kegelDone}/7 sesiones · Hábitos óseos: ${boneDone}/7 días`, color: kegelDone >= 5 ? "var(--green)" : "var(--amber)" });
 
+  const lastSafetyCheck = safetyChecks.length > 0
+    ? [...safetyChecks].sort((a, b) => b.completedAt.localeCompare(a.completedAt))[0]
+    : null;
+  if (lastSafetyCheck) {
+    const scDate = new Date(lastSafetyCheck.completedAt).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" });
+    const scLabel = lastSafetyCheck.resultLevel === "RED" ? "CRÍTICO — acudir a urgencias" : lastSafetyCheck.resultLevel === "YELLOW" ? "Aviso — solicitar cita" : "Sin señales de alarma";
+    bullets.push({
+      text: `Control semanal de seguridad (${scDate}): ${scLabel}`,
+      color: lastSafetyCheck.resultLevel === "RED" ? "var(--rose)" : lastSafetyCheck.resultLevel === "YELLOW" ? "var(--amber)" : "var(--green)",
+    });
+  }
+
   const lastINR = inrLogs.length > 0 ? [...inrLogs].sort((a, b) => b.date.localeCompare(a.date))[0] : null;
   if (lastINR) {
     const inrOk = lastINR.value >= 2.0 && lastINR.value <= 3.0;
@@ -120,6 +132,7 @@ function ClinicalSummary({ data }) {
     "",
     lastPSA ? `PSA: ${lastPSA.psa} ng/mL  ·  Fecha: ${fmtDate(lastPSA.date)}${psadt ? `  ·  PSADT: ${psadt} meses` : ""}` : "PSA: no registrado",
     lastINR ? `INR: ${lastINR.value}  ·  Fecha: ${fmtDate(lastINR.date)}  ·  Rango objetivo: 2,0–3,0` : null,
+    lastSafetyCheck ? `CONTROL SEMANAL DE SEGURIDAD: ${new Date(lastSafetyCheck.completedAt).toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" })} — ${lastSafetyCheck.resultLevel === "RED" ? "CRÍTICO" : lastSafetyCheck.resultLevel === "YELLOW" ? "AVISO" : "Sin alarmas"}` : null,
     "",
     "ADHERENCIA ÚLTIMA SEMANA",
     `• Kegel: ${kegelDone}/7 sesiones`,

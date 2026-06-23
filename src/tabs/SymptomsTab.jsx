@@ -39,7 +39,7 @@ const SYMPTOM_GROUPS = {
 
 const URINARY_IDS = ["frecuencia", "urgencia", "incontinencia", "retencion", "ardor"];
 
-export default function SymptomsTab({ data, refresh }) {
+export default function SymptomsTab({ data, refresh, onNavigate }) {
   const [date, setDate] = useState(today());
   const [symptoms, setSymptoms] = useState({});
   const [notes, setNotes] = useState("");
@@ -153,6 +153,17 @@ export default function SymptomsTab({ data, refresh }) {
         <button className="btn-primary fade-up fade-up-d4" onClick={handleSave} style={{ background: saved ? "var(--green)" : "var(--blue)", padding: "1rem", marginBottom: "1.25rem" }}>
           {saved ? "Guardado correctamente" : "Guardar registro del día"}
         </button>
+
+        {onNavigate && (
+          <div className="fade-up fade-up-d4" onClick={() => onNavigate("safetychecker")} style={{ display: "flex", alignItems: "center", gap: ".75rem", padding: "1rem 1.1rem", borderRadius: "var(--radius-lg)", border: "1px solid var(--border)", background: "var(--card)", cursor: "pointer", marginBottom: "1rem" }}>
+            <span style={{ fontSize: "1.2rem", flexShrink: 0 }}>🔍</span>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontWeight: 700, color: "var(--navy)", fontSize: ".88rem" }}>Más preguntas de salud</p>
+              <p style={{ fontSize: ".73rem", color: "var(--muted)", marginTop: ".1rem" }}>Preguntas adicionales para tu seguimiento semanal</p>
+            </div>
+            <span style={{ color: "var(--muted)", fontSize: "1.1rem", lineHeight: 1 }}>›</span>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -282,7 +282,6 @@ export default function SafetyCheckerTab({ prescriptions, safetyChecks = [], ref
               const answered = check.autoFlag || ans !== undefined;
               return (
                 <Card key={check.id} className={`fade-up fade-up-d${Math.min(i + 1, 4)}`} style={{ padding: "1.1rem", border: `1.5px solid ${answered ? (isFlagged(check, answers) ? (check.severity === "RED" ? "rgba(192,57,75,0.35)" : "rgba(245,158,11,0.35)") : "rgba(46,156,106,0.25)") : "var(--border)"}`, transition: "border-color var(--transition-fast)" }}>
-                  <p style={{ fontSize: ".7rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: ".5rem" }}>{check.triggerLabel}</p>
                   <p style={{ fontSize: ".85rem", color: "var(--text)", lineHeight: 1.5, marginBottom: check.autoFlag ? 0 : ".85rem", fontWeight: check.autoFlag ? 600 : 400 }}>
                     {check.autoFlag ? "⚠️ " : ""}{check.question}
                   </p>
