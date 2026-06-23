@@ -136,11 +136,7 @@ export default function HomeTab({ data, onNavigate, profile }) {
   const operado       = profile?.operado === true;
   const noOperado     = profile?.operado === false;
 
-  const hasMedToday = data.homeMeds?.some(m => m.date === todayStr) || false;
-
   const kegelCard = { icon: "🏋️", label: "Kegel", sub: kegelLogs.some(l => l.date === todayStr) ? "Completado hoy" : "Pendiente hoy", nav: "kegel", color: "rgba(245, 158, 11, 0.1)", border: operado ? "rgba(245,158,11,0.45)" : "rgba(245, 158, 11, 0.15)" };
-
-  const medicacionCard = { icon: "💊", label: "Medicación", sub: hasMedToday ? "Tomada hoy" : "Pendiente hoy", nav: "prescriptions", color: "rgba(16, 185, 129, 0.1)", border: hasMedToday ? "rgba(16,185,129,0.45)" : "rgba(16, 185, 129, 0.15)" };
 
   const baseCards = [
     { icon: "🌡️", label: "Síntomas",   sub: todaySymptoms.length ? `${todaySymptoms.length} entrada hoy` : "Sin registro hoy", nav: "symptoms",      color: "var(--accent-light)",        border: "rgba(59, 130, 246, 0.15)" },
@@ -150,9 +146,7 @@ export default function HomeTab({ data, onNavigate, profile }) {
 
   const quickCards = operado
     ? [kegelCard, ...baseCards]
-    : noOperado
-      ? [...baseCards.slice(0, 2), medicacionCard, baseCards[2]]
-      : [...baseCards, kegelCard];
+    : [...baseCards, kegelCard];
 
   return (
     <div style={{ paddingBottom: "6rem" }}>
