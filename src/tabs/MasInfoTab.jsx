@@ -22,7 +22,7 @@ function bpClassify(sys, dia) {
 
 function ClinicalSummary({ data }) {
   const [copied, setCopied] = useState(false);
-  const { symptomLogs, psaLogs, bpLogs, kegelLogs, boneLogs, adverseEvents = [] } = data;
+  const { symptomLogs, psaLogs, bpLogs, kegelLogs, boneLogs, adverseEvents = [], inrLogs = [] } = data;
 
   if (!symptomLogs.length && !psaLogs.length) return (
     <p style={{ fontSize: ".85rem", color: "var(--muted)", textAlign: "center", padding: "1rem 0", fontStyle: "italic" }}>
@@ -72,6 +72,15 @@ function ClinicalSummary({ data }) {
   }
   bullets.push({ text: `Adherencia última semana — Kegel: ${kegelDone}/7 sesiones · Hábitos óseos: ${boneDone}/7 días`, color: kegelDone >= 5 ? "var(--green)" : "var(--amber)" });
 
+  const lastINR = inrLogs.length > 0 ? [...inrLogs].sort((a, b) => b.date.localeCompare(a.date))[0] : null;
+  if (lastINR) {
+    const inrOk = lastINR.value >= 2.0 && lastINR.value <= 3.0;
+    bullets.push({
+      text: `INR: ${lastINR.value} (${fmtDate(lastINR.date)}) — ${inrOk ? "En rango terapéutico (2,0–3,0)" : "Fuera del rango terapéutico — revisar con hematólogo"}`,
+      color: inrOk ? "var(--green)" : "var(--rose)",
+    });
+  }
+
   const cutoff90 = new Date(); cutoff90.setDate(cutoff90.getDate() - 90);
   const recentEvents = adverseEvents
     .filter(e => e.date && new Date(e.date + "T12:00:00") >= cutoff90)
@@ -110,6 +119,7 @@ function ClinicalSummary({ data }) {
     lastSymptom?.weight ? `PESO: ${lastSymptom.weight} kg` : null,
     "",
     lastPSA ? `PSA: ${lastPSA.psa} ng/mL  ·  Fecha: ${fmtDate(lastPSA.date)}${psadt ? `  ·  PSADT: ${psadt} meses` : ""}` : "PSA: no registrado",
+    lastINR ? `INR: ${lastINR.value}  ·  Fecha: ${fmtDate(lastINR.date)}  ·  Rango objetivo: 2,0–3,0` : null,
     "",
     "ADHERENCIA ÚLTIMA SEMANA",
     `• Kegel: ${kegelDone}/7 sesiones`,

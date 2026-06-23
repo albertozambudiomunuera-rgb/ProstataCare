@@ -13,6 +13,8 @@ import RemindersTab from './tabs/RemindersTab';
 import MasInfoTab from './tabs/MasInfoTab';
 import RecommendationsTab from './tabs/RecommendationsTab';
 import AdverseEventsTab from './tabs/AdverseEventsTab';
+import INRTab from './tabs/INRTab';
+import SafetyCheckerTab from './tabs/SafetyCheckerTab';
 import Card from './components/Card';
 import PatientProfileModal from './components/PatientProfileModal';
 
@@ -30,6 +32,8 @@ const MORE_ITEMS = [
   { id: "reminders",       icon: "🔔", label: "Recordat."   },
   { id: "recommendations", icon: "💡", label: "Consejos"    },
   { id: "adverseevents",   icon: "📋", label: "Eventos"     },
+  { id: "safetychecker",   icon: "🔍", label: "Control"     },
+  { id: "inr",             icon: "🩸", label: "INR"         },
   { id: "masinfo",         icon: "📊", label: "Resumen"     },
 ];
 
@@ -61,17 +65,17 @@ export default function App() {
 
   const [data, setData] = useState({
     symptomLogs: [], psaLogs: [], prescriptions: [], homeMeds: [],
-    kegelLogs: [], boneLogs: [], bpLogs: [], reminders: [], adverseEvents: []
+    kegelLogs: [], boneLogs: [], bpLogs: [], reminders: [], adverseEvents: [], inrLogs: []
   });
 
   const loadAll = useCallback(async () => {
     try {
-      const [symptomLogs, psaLogs, prescriptions, homeMeds, kegelLogs, boneLogs, bpLogs, reminders, adverseEvents] = await Promise.all([
+      const [symptomLogs, psaLogs, prescriptions, homeMeds, kegelLogs, boneLogs, bpLogs, reminders, adverseEvents, inrLogs] = await Promise.all([
         dbAll("symptom_logs"), dbAll("psa_logs"), dbAll("prescriptions"), dbAll("home_meds"),
         dbAll("kegel_logs"), dbAll("bone_logs"), dbAll("bp_logs"), dbAll("reminders"),
-        dbAll("adverse_events"),
+        dbAll("adverse_events"), dbAll("inr_logs"),
       ]);
-      setData({ symptomLogs, psaLogs, prescriptions, homeMeds, kegelLogs, boneLogs, bpLogs, reminders, adverseEvents });
+      setData({ symptomLogs, psaLogs, prescriptions, homeMeds, kegelLogs, boneLogs, bpLogs, reminders, adverseEvents, inrLogs });
       if (shouldShowSafariBanner(reminders.length)) setSafariBannerVisible(true);
     } catch (err) {
       console.error("Error al cargar la base de datos", err);
@@ -167,6 +171,7 @@ export default function App() {
         await restoreStore("bp_logs", imported.bpLogs);
         await restoreStore("reminders", imported.reminders);
         await restoreStore("adverse_events", imported.adverseEvents);
+        await restoreStore("inr_logs", imported.inrLogs);
         alert("Copia de seguridad restaurada con éxito.");
         await loadAll();
         navigate("home");
@@ -222,13 +227,15 @@ export default function App() {
         {tab === "home"          && <HomeTab data={data} onNavigate={navigate} profile={profile} />}
         {tab === "symptoms"      && <SymptomsTab data={data} refresh={loadAll} />}
         {tab === "psa"           && <PSATab psaLogs={data.psaLogs} theme={theme} refresh={loadAll} />}
-        {tab === "prescriptions" && <PrescriptionsTab prescriptions={data.prescriptions} refresh={loadAll} />}
+        {tab === "prescriptions" && <PrescriptionsTab prescriptions={data.prescriptions} refresh={loadAll} onNavigate={navigate} />}
         {tab === "home_meds"     && <HomeMedsTab homeMeds={data.homeMeds} refresh={loadAll} />}
         {tab === "kegel"         && <KegelTab kegelLogs={data.kegelLogs} refresh={loadAll} />}
         {tab === "bone"          && <BoneTab boneLogs={data.boneLogs} refresh={loadAll} />}
         {tab === "reminders"     && <RemindersTab reminders={data.reminders} refresh={loadAll} />}
         {tab === "recommendations" && <RecommendationsTab />}
         {tab === "adverseevents"  && <AdverseEventsTab adverseEvents={data.adverseEvents} refresh={loadAll} />}
+        {tab === "safetychecker"  && <SafetyCheckerTab prescriptions={data.prescriptions} />}
+        {tab === "inr"            && <INRTab inrLogs={data.inrLogs} refresh={loadAll} />}
         {tab === "masinfo"        && <MasInfoTab data={data} />}
       </main>
 

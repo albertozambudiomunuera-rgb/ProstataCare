@@ -3,18 +3,25 @@ import Card from '../components/Card';
 import SectionTitle from '../components/SectionTitle';
 import { dbAdd, dbDel } from '../db';
 
-// YELLOW_FOLLOWUP = vigilar analítica/dosis  RED_SAFETY = interacción relevante  CRITICAL_BLOCK = riesgo de fallo terapéutico
+// YELLOW = vigilar analítica/dosis   RED = interacción relevante o riesgo de fallo terapéutico
 const DRUG_SAFETY_MAP = {
   "acenocumarol": "YELLOW", "sintrom": "YELLOW", "warfarina": "YELLOW",
   "rivaroxaban": "RED",  "apixaban": "RED",   "dabigatran": "RED",   "edoxaban": "RED",
-  "clopidogrel": "RED",  "digoxina": "RED",   "amiodarona": "RED",
+  "clopidogrel": "RED",  "prasugrel": "RED",  "ticagrelor": "RED",
+  "digoxina": "RED",     "amiodarona": "RED",
   "rosuvastatina": "RED", "atorvastatina": "RED", "simvastatina": "RED",
   "amlodipino": "RED",   "nifedipino": "RED", "verapamilo": "RED",   "diltiazem": "RED",
-  "furosemida": "YELLOW", "torasemida": "YELLOW", "hidroclorotiazida": "YELLOW",
+  "furosemida": "YELLOW", "torasemida": "YELLOW", "hidroclorotiazida": "YELLOW", "indapamida": "YELLOW",
   "carbamazepina": "RED", "fenitoina": "RED",  "fenobarbital": "RED",
   "midazolam": "YELLOW", "triazolam": "YELLOW", "diazepam": "YELLOW",
+  "alprazolam": "YELLOW", "lormetazepam": "YELLOW",
   "soja": "RED", "isoflavona": "RED",
+  "omeprazol": "YELLOW", "esomeprazol": "YELLOW", "lansoprazol": "YELLOW", "pantoprazol": "YELLOW",
+  "prednisona": "YELLOW", "dexametasona": "YELLOW", "metilprednisolona": "YELLOW",
 };
+
+// Anticoagulantes que requieren control de INR periódico
+const INR_DRUGS = ["acenocumarol", "sintrom", "warfarina"];
 
 const DOT_COLOR = { YELLOW: "#d97706", RED: "#dc2626" };
 
@@ -26,7 +33,12 @@ function getRiskLevel(name) {
   return null;
 }
 
-export default function PrescriptionsTab({ prescriptions, refresh }) {
+function needsINR(name) {
+  const n = name.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  return INR_DRUGS.some(kw => n.includes(kw));
+}
+
+export default function PrescriptionsTab({ prescriptions, refresh, onNavigate }) {
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState("");
   const [dose, setDose] = useState("");
@@ -102,6 +114,11 @@ export default function PrescriptionsTab({ prescriptions, refresh }) {
                     </p>
                     <p style={{ fontSize: ".8rem", color: "var(--muted)", marginTop: ".15rem", fontWeight: 500 }}>Dosis: {m.dose} · Frecuencia: {m.freq}</p>
                     {m.notes && <p style={{ fontSize: ".78rem", color: "var(--blue)", marginTop: ".4rem", background: "var(--accent-light)", padding: "0.3rem 0.6rem", borderRadius: "var(--radius-sm)", display: "inline-block", fontWeight: 500 }}>{m.notes}</p>}
+                    {needsINR(m.name) && onNavigate && (
+                      <button onClick={() => onNavigate("inr")} style={{ display: "flex", alignItems: "center", gap: ".3rem", marginTop: ".5rem", background: "rgba(220,38,38,0.06)", border: "1px solid rgba(220,38,38,0.2)", borderRadius: "var(--radius-sm)", padding: ".25rem .6rem", cursor: "pointer", fontFamily: "inherit", fontSize: ".73rem", fontWeight: 700, color: "#b91c1c" }}>
+                        🩸 Registrar INR
+                      </button>
+                    )}
                   </div>
                 </div>
                 <button onClick={async () => { if (confirm(`¿Eliminar ${m.name} de tu tratamiento?`)) { await dbDel("prescriptions", m.id); refresh(); } }} style={{ background: "none", border: "none", color: "var(--rose)", cursor: "pointer", fontSize: "0.9rem", padding: ".25rem", opacity: 0.6 }}>✕</button>
