@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { dbAll, dbClearAll, dbAdd, today } from './db';
+import { dbAll, dbClearAll, dbAdd, today } from './services/secureStorage';
 import { Moon, Sun } from 'lucide-react';
+import { SecurityProvider, useSecurityContext } from './context/SecurityContext';
+import SecuritySetupModal from './components/SecuritySetupModal';
+import PinUnlockModal from './components/PinUnlockModal';
 
 import HomeTab from './tabs/HomeTab';
 import SymptomsTab from './tabs/SymptomsTab';
@@ -55,7 +58,17 @@ function shouldShowSafariBanner(remindersCount) {
   return !dismissed;
 }
 
+// Componente raíz que envuelve todo con el proveedor de seguridad
 export default function App() {
+  return (
+    <SecurityProvider>
+      <AppInner />
+    </SecurityProvider>
+  );
+}
+
+function AppInner() {
+  const { status } = useSecurityContext();
   const [tab, setTab] = useState("home");
   const [showMore, setShowMore] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem("prostatacare-theme") || "light");
@@ -94,7 +107,8 @@ export default function App() {
     }
   }, []);
 
-  useEffect(() => { loadAll(); }, [loadAll]);
+  // Solo cargamos datos cuando la clave criptográfica está lista
+  useEffect(() => { if (status === "ready") loadAll(); }, [loadAll, status]);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -195,6 +209,17 @@ export default function App() {
     reader.readAsText(file);
     e.target.value = null;
   };
+
+  // Bloquear toda la UI hasta que la seguridad esté resuelta
+  if (status === "loading") {
+    return (
+      <div style={{ minHeight: "100vh", background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ color: "var(--muted)", fontSize: ".9rem" }}>Iniciando…</p>
+      </div>
+    );
+  }
+  if (status === "needs-setup") return <SecuritySetupModal />;
+  if (status === "needs-unlock") return <PinUnlockModal />;
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)", maxWidth: "430px", margin: "0 auto", position: "relative", display: "flex", flexDirection: "column", transition: "background var(--transition-normal)" }}>

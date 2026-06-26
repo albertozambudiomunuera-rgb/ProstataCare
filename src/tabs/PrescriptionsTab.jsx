@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Card from '../components/Card';
 import SectionTitle from '../components/SectionTitle';
-import { dbAdd, dbDel } from '../db';
+import { dbAdd, dbDel } from '../services/secureStorage';
 
 // YELLOW = vigilar analítica/dosis   RED = interacción relevante o riesgo de fallo terapéutico
 const DRUG_SAFETY_MAP = {

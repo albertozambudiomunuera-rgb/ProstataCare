@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Card from '../components/Card';
 import SectionTitle from '../components/SectionTitle';
-import { dbAdd, dbDel, today } from '../db';
+import { dbAdd, dbDel, today } from '../services/secureStorage';
 
 const INR_MIN = 2.0;
 const INR_MAX = 3.0;

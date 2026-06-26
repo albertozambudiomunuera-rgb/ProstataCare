@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Card from '../components/Card';
 import TrafficLight from '../components/TrafficLight';
-import { today, fmtDate, calcPSADT } from '../db';
+import { today, fmtDate, calcPSADT } from '../services/secureStorage';
 
 function HomeCalendar({ kegelLogs, boneLogs }) {
   const [currentMonth, setCurrentMonth] = useState(() => {

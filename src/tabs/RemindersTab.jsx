@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Card from '../components/Card';
 import SectionTitle from '../components/SectionTitle';
-import { dbAdd, dbDel, requestNotificationPermission, scheduleNotification } from '../db';
+import { dbAdd, dbDel, requestNotificationPermission, scheduleNotification } from '../services/secureStorage';
 
 const REMINDER_TYPES = [
   { id: "medication",  label: "Tomar medicación",          icon: "💊" },

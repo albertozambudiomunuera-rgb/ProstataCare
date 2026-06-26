@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Card from '../components/Card';
 import SectionTitle from '../components/SectionTitle';
-import { dbAdd, today } from '../db';
+import { dbAdd, today } from '../services/secureStorage';
 
 const KEGEL_PROGRAMS = [
   { id: "basic",    label: "Básico",   contract: 5,  relax: 5, reps: 8,  description: "Ideal para comenzar"         },

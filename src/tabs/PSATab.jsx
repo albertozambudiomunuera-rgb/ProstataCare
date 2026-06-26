@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Card from '../components/Card';
 import SectionTitle from '../components/SectionTitle';
-import { dbAdd, dbDel, today, fmtDate, calcPSADT } from '../db';
+import { dbAdd, dbDel, today, fmtDate, calcPSADT } from '../services/secureStorage';
 
 export default function PSATab({ psaLogs, theme, refresh }) {
   const [date, setDate] = useState(today());

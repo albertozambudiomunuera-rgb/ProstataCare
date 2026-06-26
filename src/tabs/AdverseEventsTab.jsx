@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Card from '../components/Card';
 import SectionTitle from '../components/SectionTitle';
-import { dbAdd, dbDel, dbUpdate, today } from '../db';
+import { dbAdd, dbDel, dbUpdate, today } from '../services/secureStorage';
 
 const EVENT_SUGGESTIONS = [
   "Trombosis venosa", "Embolia pulmonar", "Infección urinaria", "Infección",

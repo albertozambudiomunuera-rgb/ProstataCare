@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Card from '../components/Card';
 import SectionTitle from '../components/SectionTitle';
-import { calcPSADT, fmtDate, today } from '../db';
+import { calcPSADT, fmtDate, today } from '../services/secureStorage';
 
 const URINARY_IDS = ["frecuencia", "urgencia", "incontinencia", "retencion", "ardor"];
 

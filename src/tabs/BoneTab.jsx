@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Card from '../components/Card';
 import SectionTitle from '../components/SectionTitle';
-import { dbAdd, today } from '../db';
+import { dbAdd, today } from '../services/secureStorage';
 
 const BONE_HABITS = [
   { id: "ejercicio",   label: "30 min de ejercicio de fuerza o impacto", icon: "🏋️" },

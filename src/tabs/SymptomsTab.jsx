@@ -5,7 +5,7 @@ import SeverityPicker from '../components/SeverityPicker';
 import TrafficLight from '../components/TrafficLight';
 import IIEF5Modal from '../components/IIEF5Modal';
 import IPSSModal from '../components/IPSSModal';
-import { dbAdd, today, canShowQuestionnaire } from '../db';
+import { dbAdd, today, canShowQuestionnaire } from '../services/secureStorage';
 
 const SYMPTOM_GROUPS = {
   "Hormonales": [

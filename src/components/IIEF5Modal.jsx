@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { dbAdd, today } from '../db';
+import { dbAdd, today } from '../services/secureStorage';
 
 const QUESTIONS = [
   {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { dbAdd, today } from '../db';
+import { dbAdd, today } from '../services/secureStorage';
 
 const QUESTIONS = [
   { id: "q1", text: "¿Con qué frecuencia ha tenido la sensación de no vaciar completamente la vejiga al terminar de orinar?" },

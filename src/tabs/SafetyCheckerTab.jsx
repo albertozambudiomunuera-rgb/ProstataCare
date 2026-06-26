@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import Card from '../components/Card';
 import SectionTitle from '../components/SectionTitle';
-import { dbAdd } from '../db';
+import { dbAdd } from '../services/secureStorage';
 
 function norm(str) {
   return str.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
